@@ -220,21 +220,42 @@ class FX5UCCoordinator(DataUpdateCoordinator):
         """Fetch data from the PLC.
 
         Returns dict with 'inputs' and 'outputs' lists of booleans.
+        Gracefully handles Modbus errors — returns False for unreadable I/O.
         """
+        # Reconnect if needed
+        if not self.hub.available:
+            try:
+                connected = await self.hub.async_connect()
+                if not connected:
+                    raise UpdateFailed(
+                        f"Cannot connect to FX5UC at {self.hub.host}:{self.hub.port}"
+                    )
+            except UpdateFailed:
+                raise
+            except Exception as err:
+                raise UpdateFailed(f"Connection error: {err}") from err
+
+        # Read inputs — gracefully handle errors
+        inputs: list[bool] = [False] * self.hub.input_count
         try:
-            # Reconnect if needed
-            if not self.hub.available and self.hub._client is not None:
-                _LOGGER.debug("Attempting reconnection to FX5UC")
-                await self.hub.async_connect()
-
             inputs = await self.hub.async_read_inputs()
-            outputs = await self.hub.async_read_coils()
-
-            return {
-                "inputs": inputs,
-                "outputs": outputs,
-            }
         except UpdateFailed:
-            raise
+            _LOGGER.warning("Could not read inputs from FX5UC — using defaults")
         except Exception as err:
-            raise UpdateFailed(f"Error communicating with FX5UC: {err}") from err
+            _LOGGER.warning("Error reading inputs: %s", err)
+
+        # Read outputs — gracefully handle errors
+        outputs: list[bool] = [False] * self.hub.output_count
+        try:
+            outputs = await self.hub.async_read_coils()
+        except UpdateFailed:
+            _LOGGER.warning("Could not read outputs from FX5UC — using defaults")
+        except Exception as err:
+            _LOGGER.warning("Error reading outputs: %s", err)
+
+        return {
+            "inputs": inputs,
+            "outputs": outputs,
+            "available": self.hub.available,
+        }
+

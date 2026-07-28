@@ -19,6 +19,7 @@ from .const import (
     DOMAIN,
 )
 from .hub import FX5UCCoordinator, FX5UCHub
+from .diagnostics_sensor import FX5UCConnectionStatus
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -37,7 +38,12 @@ async def async_setup_entry(
     input_count = entry.data.get(CONF_INPUT_COUNT, DEFAULT_INPUT_COUNT)
     io_names: dict[str, str] = entry.options.get(CONF_IO_NAMES, {})
 
-    entities = []
+    # Connection status sensor
+    entities: list = [
+        FX5UCConnectionStatus(coordinator, hub, entry.entry_id)
+    ]
+
+    # Input sensors
     for i in range(input_count):
         address = input_start + i
         alias_key = f"input_{address}"

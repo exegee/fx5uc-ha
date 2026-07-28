@@ -6,6 +6,7 @@ import logging
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import ConfigEntryNotReady
 
 from .const import DOMAIN, PLATFORMS
 from .hub import FX5UCCoordinator, FX5UCHub
@@ -21,17 +22,25 @@ async def async_setup_entry(hass: HomeAssistant, entry: FX5UCConfigEntry) -> boo
 
     connected = await hub.async_connect()
     if not connected:
-        _LOGGER.error(
-            "Could not connect to FX5UC at %s:%s",
+        _LOGGER.warning(
+            "Could not connect to FX5UC at %s:%s — will retry",
             hub.host,
             hub.port,
         )
-        return False
+        raise ConfigEntryNotReady(
+            f"Cannot connect to FX5UC at {hub.host}:{hub.port}"
+        )
 
     coordinator = FX5UCCoordinator(hass, hub)
 
-    # Perform initial data fetch
-    await coordinator.async_config_entry_first_refresh()
+    # Perform initial data fetch — don't fail if Modbus reads error
+    try:
+        await coordinator.async_config_entry_first_refresh()
+    except ConfigEntryNotReady:
+        # Connection lost during first read — HA will retry
+        raise
+    except Exception as err:
+        _LOGGER.warning("Initial data fetch had errors: %s — continuing setup", err)
 
     # Store hub and coordinator for platforms to access
     hass.data.setdefault(DOMAIN, {})
