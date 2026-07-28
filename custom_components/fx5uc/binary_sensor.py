@@ -86,6 +86,7 @@ class FX5UCBinarySensor(CoordinatorEntity[FX5UCCoordinator], BinarySensorEntity)
 
         # Unique ID ensures HA tracks this entity across restarts
         self._attr_unique_id = f"{entry_id}_input_{address}"
+        self._attr_icon = "mdi:import"
 
         # Entity name — alias or default X address
         if alias:
@@ -98,7 +99,8 @@ class FX5UCBinarySensor(CoordinatorEntity[FX5UCCoordinator], BinarySensorEntity)
             "identifiers": {(DOMAIN, entry_id)},
             "name": f"FX5UC ({hub.host})",
             "manufacturer": "Mitsubishi Electric",
-            "model": "FX5UC",
+            "model": "FX5UC PLC",
+            "sw_version": "1.0.1",
         }
 
     @property

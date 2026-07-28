@@ -81,6 +81,7 @@ class FX5UCSwitch(CoordinatorEntity[FX5UCCoordinator], SwitchEntity):
 
         # Unique ID ensures HA tracks this entity across restarts
         self._attr_unique_id = f"{entry_id}_output_{address}"
+        self._attr_icon = "mdi:toggle-switch-outline"
 
         # Entity name — alias or default Y address
         if alias:
@@ -93,7 +94,8 @@ class FX5UCSwitch(CoordinatorEntity[FX5UCCoordinator], SwitchEntity):
             "identifiers": {(DOMAIN, entry_id)},
             "name": f"FX5UC ({hub.host})",
             "manufacturer": "Mitsubishi Electric",
-            "model": "FX5UC",
+            "model": "FX5UC PLC",
+            "sw_version": "1.0.1",
         }
 
     @property
