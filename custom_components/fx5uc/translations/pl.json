@@ -1,0 +1,58 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Połączenie FX5UC",
+        "description": "Skonfiguruj połączenie Modbus TCP ze sterownikiem Mitsubishi FX5UC.",
+        "data": {
+          "host": "Adres IP / Host",
+          "port": "Port",
+          "slave": "ID Slave",
+          "scan_interval": "Interwał odczytu (sekundy)"
+        }
+      },
+      "io_config": {
+        "title": "Konfiguracja I/O",
+        "description": "Skonfiguruj zakresy adresów Modbus dla wejść (X) i wyjść (Y).",
+        "data": {
+          "input_start": "Adres startowy wejść (X)",
+          "input_count": "Liczba wejść",
+          "output_start": "Adres startowy wyjść (Y)",
+          "output_count": "Liczba wyjść"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Nie można połączyć się z FX5UC. Sprawdź adres IP i port."
+    },
+    "abort": {
+      "already_configured": "Ten sterownik FX5UC jest już skonfigurowany."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Opcje FX5UC",
+        "description": "Wybierz co chcesz skonfigurować.",
+        "data": {
+          "action": "Akcja"
+        }
+      },
+      "aliases_inputs": {
+        "title": "Nazwy wejść (X)",
+        "description": "Ustaw własne nazwy dla wejść. Pozostaw puste, aby użyć domyślnych."
+      },
+      "aliases_outputs": {
+        "title": "Nazwy wyjść (Y)",
+        "description": "Ustaw własne nazwy dla wyjść. Pozostaw puste, aby użyć domyślnych."
+      },
+      "settings": {
+        "title": "Ustawienia połączenia",
+        "description": "Zmień interwał odczytu.",
+        "data": {
+          "scan_interval": "Interwał odczytu (sekundy)"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "Mitsubishi FX5UC",
+  "description": "Home Assistant integration for Mitsubishi FX5UC PLC via Modbus TCP/IP. Control outputs (Y) and read inputs (X) with custom naming.",
+  "homeassistant": "2024.1.0",
+  "render_readme": true
+}

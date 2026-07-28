@@ -1,0 +1,58 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "FX5UC Connection",
+        "description": "Configure the Modbus TCP connection to your Mitsubishi FX5UC PLC.",
+        "data": {
+          "host": "Host / IP Address",
+          "port": "Port",
+          "slave": "Slave ID",
+          "scan_interval": "Scan interval (seconds)"
+        }
+      },
+      "io_config": {
+        "title": "I/O Configuration",
+        "description": "Configure the Modbus address ranges for inputs (X) and outputs (Y).",
+        "data": {
+          "input_start": "Input start address (X)",
+          "input_count": "Number of inputs",
+          "output_start": "Output start address (Y)",
+          "output_count": "Number of outputs"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Cannot connect to FX5UC. Check the IP address and port."
+    },
+    "abort": {
+      "already_configured": "This FX5UC is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "FX5UC Options",
+        "description": "Choose what to configure.",
+        "data": {
+          "action": "Action"
+        }
+      },
+      "aliases_inputs": {
+        "title": "Input Names (X)",
+        "description": "Set custom names for each input. Leave empty to use default names."
+      },
+      "aliases_outputs": {
+        "title": "Output Names (Y)",
+        "description": "Set custom names for each output. Leave empty to use default names."
+      },
+      "settings": {
+        "title": "Connection Settings",
+        "description": "Adjust the polling interval.",
+        "data": {
+          "scan_interval": "Scan interval (seconds)"
+        }
+      }
+    }
+  }
+}
