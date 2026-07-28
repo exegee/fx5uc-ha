@@ -99,11 +99,19 @@ class FX5UCHub:
         """Read discrete inputs (X) from the PLC."""
         async with self._lock:
             try:
-                result = await self.client.read_discrete_inputs(
-                    address=self.input_start,
-                    count=self.input_count,
-                    slave=self.slave,
-                )
+                try:
+                    result = await self.client.read_discrete_inputs(
+                        address=self.input_start,
+                        count=self.input_count,
+                        unit=self.slave,
+                    )
+                except TypeError:
+                    result = await self.client.read_discrete_inputs(
+                        address=self.input_start,
+                        count=self.input_count,
+                        slave=self.slave,
+                    )
+
                 if result.isError():
                     _LOGGER.error("Modbus error reading inputs (X%s..): %s", self.input_start, result)
                     raise ModbusIOException(f"Error reading inputs: {result}")
@@ -121,11 +129,19 @@ class FX5UCHub:
         """Read coils / outputs (Y) from the PLC."""
         async with self._lock:
             try:
-                result = await self.client.read_coils(
-                    address=self.output_start,
-                    count=self.output_count,
-                    slave=self.slave,
-                )
+                try:
+                    result = await self.client.read_coils(
+                        address=self.output_start,
+                        count=self.output_count,
+                        unit=self.slave,
+                    )
+                except TypeError:
+                    result = await self.client.read_coils(
+                        address=self.output_start,
+                        count=self.output_count,
+                        slave=self.slave,
+                    )
+
                 if result.isError():
                     _LOGGER.error("Modbus error reading coils (Y%s..): %s", self.output_start, result)
                     raise ModbusIOException(f"Error reading coils: {result}")
@@ -144,11 +160,19 @@ class FX5UCHub:
         async with self._lock:
             try:
                 _LOGGER.info("Sending write command to FX5UC coil Y%s = %s", address, value)
-                result = await self.client.write_coil(
-                    address=address,
-                    value=value,
-                    slave=self.slave,
-                )
+                try:
+                    result = await self.client.write_coil(
+                        address=address,
+                        value=value,
+                        unit=self.slave,
+                    )
+                except TypeError:
+                    result = await self.client.write_coil(
+                        address=address,
+                        value=value,
+                        slave=self.slave,
+                    )
+
                 if result.isError():
                     _LOGGER.error("Error writing coil Y%s: %s", address, result)
                     return False
@@ -177,11 +201,18 @@ class FX5UCHub:
             # Try to read — even a Modbus exception response means
             # the TCP connection to the PLC works fine.
             try:
-                result = await client.read_coils(
-                    address=self.output_start,
-                    count=1,
-                    slave=self.slave,
-                )
+                try:
+                    result = await client.read_coils(
+                        address=self.output_start,
+                        count=1,
+                        unit=self.slave,
+                    )
+                except TypeError:
+                    result = await client.read_coils(
+                        address=self.output_start,
+                        count=1,
+                        slave=self.slave,
+                    )
                 # Any response (even error) means PLC is reachable
                 _LOGGER.debug("Test read result: %s", result)
             except Exception as read_err:
