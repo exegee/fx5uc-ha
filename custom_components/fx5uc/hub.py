@@ -70,7 +70,6 @@ class FX5UCHub:
                 port=self.port,
                 timeout=5,
                 retries=3,
-                retry_on_empty=True,
             )
             connected = await self._client.connect()
             self.available = connected
