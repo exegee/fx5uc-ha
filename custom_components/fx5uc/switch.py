@@ -95,7 +95,7 @@ class FX5UCSwitch(CoordinatorEntity[FX5UCCoordinator], SwitchEntity):
             "name": f"FX5UC ({hub.host})",
             "manufacturer": "Mitsubishi Electric",
             "model": "FX5UC PLC",
-            "sw_version": "1.0.1",
+            "sw_version": "1.0.2",
         }
 
     @property
