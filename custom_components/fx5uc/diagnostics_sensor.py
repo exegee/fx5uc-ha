@@ -41,7 +41,7 @@ class FX5UCConnectionStatus(CoordinatorEntity[FX5UCCoordinator], BinarySensorEnt
             "name": f"FX5UC ({hub.host})",
             "manufacturer": "Mitsubishi Electric",
             "model": "FX5UC PLC",
-            "sw_version": "1.0.3",
+            "sw_version": "1.0.4",
         }
 
     @property

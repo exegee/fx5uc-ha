@@ -100,7 +100,7 @@ class FX5UCBinarySensor(CoordinatorEntity[FX5UCCoordinator], BinarySensorEntity)
             "name": f"FX5UC ({hub.host})",
             "manufacturer": "Mitsubishi Electric",
             "model": "FX5UC PLC",
-            "sw_version": "1.0.3",
+            "sw_version": "1.0.4",
         }
 
     @property
