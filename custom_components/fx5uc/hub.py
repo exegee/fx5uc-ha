@@ -96,11 +96,7 @@ class FX5UCHub:
             _LOGGER.info("Disconnected from FX5UC at %s:%s", self.host, self.port)
 
     async def async_read_inputs(self) -> list[bool]:
-        """Read discrete inputs (X) from the PLC.
-
-        Uses Modbus function code 02 (Read Discrete Inputs).
-        Returns a list of booleans representing input states.
-        """
+        """Read discrete inputs (X) from the PLC."""
         async with self._lock:
             try:
                 result = await self.client.read_discrete_inputs(
@@ -109,9 +105,12 @@ class FX5UCHub:
                     slave=self.slave,
                 )
                 if result.isError():
+                    _LOGGER.error("Modbus error reading inputs (X%s..): %s", self.input_start, result)
                     raise ModbusIOException(f"Error reading inputs: {result}")
                 self.available = True
-                return list(result.bits[: self.input_count])
+                bits = list(result.bits[: self.input_count])
+                _LOGGER.info("FX5UC Inputs read (X%s..X%s): %s", self.input_start, self.input_start + self.input_count - 1, bits[:8])
+                return bits
             except ConnectionException as err:
                 self.available = False
                 raise UpdateFailed(f"Connection lost to FX5UC: {err}") from err
@@ -119,11 +118,7 @@ class FX5UCHub:
                 raise UpdateFailed(f"Error reading inputs: {err}") from err
 
     async def async_read_coils(self) -> list[bool]:
-        """Read coils / outputs (Y) from the PLC.
-
-        Uses Modbus function code 01 (Read Coils).
-        Returns a list of booleans representing output states.
-        """
+        """Read coils / outputs (Y) from the PLC."""
         async with self._lock:
             try:
                 result = await self.client.read_coils(
@@ -132,9 +127,12 @@ class FX5UCHub:
                     slave=self.slave,
                 )
                 if result.isError():
+                    _LOGGER.error("Modbus error reading coils (Y%s..): %s", self.output_start, result)
                     raise ModbusIOException(f"Error reading coils: {result}")
                 self.available = True
-                return list(result.bits[: self.output_count])
+                bits = list(result.bits[: self.output_count])
+                _LOGGER.info("FX5UC Coils read (Y%s..Y%s): %s", self.output_start, self.output_start + self.output_count - 1, bits[:8])
+                return bits
             except ConnectionException as err:
                 self.available = False
                 raise UpdateFailed(f"Connection lost to FX5UC: {err}") from err
@@ -142,31 +140,26 @@ class FX5UCHub:
                 raise UpdateFailed(f"Error reading coils: {err}") from err
 
     async def async_write_coil(self, address: int, value: bool) -> bool:
-        """Write a single coil / output (Y).
-
-        Uses Modbus function code 05 (Write Single Coil).
-        Returns True if successful.
-        """
+        """Write a single coil / output (Y)."""
         async with self._lock:
             try:
+                _LOGGER.info("Sending write command to FX5UC coil Y%s = %s", address, value)
                 result = await self.client.write_coil(
                     address=address,
                     value=value,
                     slave=self.slave,
                 )
                 if result.isError():
-                    _LOGGER.error("Error writing coil %s: %s", address, result)
+                    _LOGGER.error("Error writing coil Y%s: %s", address, result)
                     return False
-                _LOGGER.debug(
-                    "Wrote coil %s = %s on FX5UC", address, value
-                )
+                _LOGGER.info("Successfully wrote coil Y%s = %s on FX5UC", address, value)
                 return True
             except ConnectionException as err:
                 self.available = False
-                _LOGGER.error("Connection lost writing coil: %s", err)
+                _LOGGER.error("Connection lost writing coil Y%s: %s", address, err)
                 return False
             except Exception as err:
-                _LOGGER.error("Error writing coil %s: %s", address, err)
+                _LOGGER.error("Error writing coil Y%s: %s", address, err)
                 return False
 
     async def async_test_connection(self) -> bool:
