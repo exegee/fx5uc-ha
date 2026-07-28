@@ -72,7 +72,7 @@ class FX5UCConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     vol.Required(CONF_HOST): str,
                     vol.Required(CONF_PORT, default=DEFAULT_PORT): vol.Coerce(int),
                     vol.Required(CONF_SLAVE, default=DEFAULT_SLAVE): vol.All(
-                        vol.Coerce(int), vol.Range(min=1, max=247)
+                        vol.Coerce(int), vol.Range(min=0, max=255)
                     ),
                     vol.Required(
                         CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL
