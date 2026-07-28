@@ -171,7 +171,7 @@ class FX5UCHub:
                 return False
 
     async def async_test_connection(self) -> bool:
-        """Test connection by attempting to read a single coil."""
+        """Test connection by attempting to connect via TCP and read a coil."""
         try:
             client = AsyncModbusTcpClient(
                 host=self.host,
@@ -182,14 +182,24 @@ class FX5UCHub:
             if not connected:
                 return False
 
-            result = await client.read_coils(
-                address=self.output_start,
-                count=1,
-                slave=self.slave,
-            )
+            # Try to read — even a Modbus exception response means
+            # the TCP connection to the PLC works fine.
+            try:
+                result = await client.read_coils(
+                    address=self.output_start,
+                    count=1,
+                    slave=self.slave,
+                )
+                # Any response (even error) means PLC is reachable
+                _LOGGER.debug("Test read result: %s", result)
+            except Exception as read_err:
+                # Read failed but TCP connected — PLC is reachable
+                _LOGGER.debug("Test read error (TCP OK): %s", read_err)
+
             client.close()
-            return not result.isError()
-        except Exception:
+            return True
+        except Exception as err:
+            _LOGGER.error("Test connection failed: %s", err)
             return False
 
 
