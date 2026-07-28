@@ -95,22 +95,29 @@ class FX5UCHub:
             self.available = False
             _LOGGER.info("Disconnected from FX5UC at %s:%s", self.host, self.port)
 
+    async def _call_modbus(self, func_name: str, *args, **kwargs):
+        """Universal helper to call pymodbus methods across different versions."""
+        func = getattr(self.client, func_name)
+        # Try different parameter names used by different pymodbus versions
+        for param_name in ("unit", "slave", "device_id"):
+            try:
+                kw = dict(kwargs)
+                kw[param_name] = self.slave
+                return await func(*args, **kw)
+            except TypeError:
+                continue
+        # Fallback to default args without explicit slave/unit
+        return await func(*args, **kwargs)
+
     async def async_read_inputs(self) -> list[bool]:
         """Read discrete inputs (X) from the PLC."""
         async with self._lock:
             try:
-                try:
-                    result = await self.client.read_discrete_inputs(
-                        address=self.input_start,
-                        count=self.input_count,
-                        unit=self.slave,
-                    )
-                except TypeError:
-                    result = await self.client.read_discrete_inputs(
-                        address=self.input_start,
-                        count=self.input_count,
-                        slave=self.slave,
-                    )
+                result = await self._call_modbus(
+                    "read_discrete_inputs",
+                    address=self.input_start,
+                    count=self.input_count,
+                )
 
                 if result.isError():
                     _LOGGER.error("Modbus error reading inputs (X%s..): %s", self.input_start, result)
@@ -129,18 +136,11 @@ class FX5UCHub:
         """Read coils / outputs (Y) from the PLC."""
         async with self._lock:
             try:
-                try:
-                    result = await self.client.read_coils(
-                        address=self.output_start,
-                        count=self.output_count,
-                        unit=self.slave,
-                    )
-                except TypeError:
-                    result = await self.client.read_coils(
-                        address=self.output_start,
-                        count=self.output_count,
-                        slave=self.slave,
-                    )
+                result = await self._call_modbus(
+                    "read_coils",
+                    address=self.output_start,
+                    count=self.output_count,
+                )
 
                 if result.isError():
                     _LOGGER.error("Modbus error reading coils (Y%s..): %s", self.output_start, result)
@@ -160,18 +160,11 @@ class FX5UCHub:
         async with self._lock:
             try:
                 _LOGGER.info("Sending write command to FX5UC coil Y%s = %s", address, value)
-                try:
-                    result = await self.client.write_coil(
-                        address=address,
-                        value=value,
-                        unit=self.slave,
-                    )
-                except TypeError:
-                    result = await self.client.write_coil(
-                        address=address,
-                        value=value,
-                        slave=self.slave,
-                    )
+                result = await self._call_modbus(
+                    "write_coil",
+                    address=address,
+                    value=value,
+                )
 
                 if result.isError():
                     _LOGGER.error("Error writing coil Y%s: %s", address, result)
@@ -201,18 +194,11 @@ class FX5UCHub:
             # Try to read — even a Modbus exception response means
             # the TCP connection to the PLC works fine.
             try:
-                try:
-                    result = await client.read_coils(
-                        address=self.output_start,
-                        count=1,
-                        unit=self.slave,
-                    )
-                except TypeError:
-                    result = await client.read_coils(
-                        address=self.output_start,
-                        count=1,
-                        slave=self.slave,
-                    )
+                result = await self._call_modbus(
+                    "read_coils",
+                    address=self.output_start,
+                    count=1,
+                )
                 # Any response (even error) means PLC is reachable
                 _LOGGER.debug("Test read result: %s", result)
             except Exception as read_err:
